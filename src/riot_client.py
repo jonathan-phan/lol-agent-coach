@@ -53,6 +53,11 @@ def get_puuid(game_name: str, tag_line: str) -> str:
     data = _get(url)
     return data["puuid"]
 
+def get_match_timeline(match_id: str) -> dict:
+    """Détail minute par minute d'une game."""
+    url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
+    return _get(url)
+
 
 def get_match_ids(puuid: str, count: int = 20, queue: int | None = None) -> list[str]:
     """Liste les IDs des derniers matchs joués.
@@ -72,10 +77,36 @@ def get_match_detail(match_id: str) -> dict:
     return _get(url)
 
 
+def _simplify_participant(p: dict) -> dict:
+    """Extrait les stats utiles d'un participant brut de l'API (utilisé pour
+    toi ET pour les 9 autres joueurs de la game)."""
+    return {
+        "summoner_name": p.get("riotIdGameName", p.get("summonerName", "?")),
+        "champion": p["championName"],
+        "team": "BLUE" if p["teamId"] == 100 else "RED",
+        "win": p["win"],
+        "role": p.get("teamPosition", "UNKNOWN"),
+        "kills": p["kills"],
+        "deaths": p["deaths"],
+        "assists": p["assists"],
+        "cs": p["totalMinionsKilled"] + p["neutralMinionsKilled"],
+        "gold_earned": p["goldEarned"],
+        "damage_to_champions": p["totalDamageDealtToChampions"],
+        "vision_score": p["visionScore"],
+        "items": [p.get(f"item{i}", 0) for i in range(7)],
+    }
+
+
 def get_match_history(game_name: str, tag_line: str, count: int = 10) -> list[dict]:
     """
     Fonction "outil" de haut niveau que l'agent appellera.
-    Retourne une liste simplifiée des dernières games du joueur.
+
+    Retourne, pour chaque game :
+    - "me" : tes stats
+    - "opponent" : les stats du joueur adverse à ton poste (même rôle, équipe
+      d'en face) — c'est lui qui te permet de comparer "toi vs ton lane"
+    - "all_players" : les 10 joueurs de la game (les deux équipes), pour une
+      analyse plus large si besoin (compo, qui a explosé la game, etc.)
     """
     puuid = get_puuid(game_name, tag_line)
     match_ids = get_match_ids(puuid, count=count)
@@ -83,20 +114,28 @@ def get_match_history(game_name: str, tag_line: str, count: int = 10) -> list[di
     results = []
     for mid in match_ids:
         detail = get_match_detail(mid)
-        participant = next(
-            p for p in detail["info"]["participants"] if p["puuid"] == puuid
+        participants = detail["info"]["participants"]
+
+        me_raw = next(p for p in participants if p["puuid"] == puuid)
+        me = _simplify_participant(me_raw)
+
+        # adversaire direct = même rôle, équipe adverse
+        opponent_raw = next(
+            (p for p in participants
+             if p["teamId"] != me_raw["teamId"]
+             and p.get("teamPosition") == me_raw.get("teamPosition")),
+            None,
         )
+        opponent = _simplify_participant(opponent_raw) if opponent_raw else None
+
+        all_players = [_simplify_participant(p) for p in participants]
+
         results.append({
             "match_id": mid,
-            "champion": participant["championName"],
-            "win": participant["win"],
-            "kills": participant["kills"],
-            "deaths": participant["deaths"],
-            "assists": participant["assists"],
-            "cs": participant["totalMinionsKilled"] + participant["neutralMinionsKilled"],
             "game_duration_min": round(detail["info"]["gameDuration"] / 60, 1),
-            "gold_earned": participant["goldEarned"],
-            "role": participant.get("teamPosition", "UNKNOWN"),
+            "me": me,
+            "opponent": opponent,
+            "all_players": all_players,
         })
         time.sleep(1.2)  # rate limit dev key : 20 req/1s, 100 req/2min -> on reste safe
 
