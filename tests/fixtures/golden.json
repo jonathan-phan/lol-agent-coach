@@ -1,0 +1,1356 @@
+{
+ "history": [
+  {
+   "match_id": "DEMO_1",
+   "game_duration_min": 30.1,
+   "me": {
+    "summoner_name": "DemoPlayer",
+    "champion": "Sylas",
+    "team": "BLUE",
+    "win": false,
+    "role": "TOP",
+    "kills": 13,
+    "deaths": 7,
+    "assists": 4,
+    "cs": 184,
+    "gold_earned": 14186,
+    "damage_to_champions": 37409,
+    "vision_score": 16,
+    "items": [
+     3110,
+     3047,
+     3157,
+     4645,
+     4633,
+     2022,
+     3340
+    ]
+   },
+   "opponent": {
+    "summoner_name": "Player6",
+    "champion": "Irelia",
+    "team": "RED",
+    "win": true,
+    "role": "TOP",
+    "kills": 2,
+    "deaths": 12,
+    "assists": 10,
+    "cs": 199,
+    "gold_earned": 10492,
+    "damage_to_champions": 22254,
+    "vision_score": 16,
+    "items": [
+     2019,
+     1036,
+     1055,
+     3111,
+     3153,
+     3181,
+     3364
+    ]
+   },
+   "all_players": [
+    {
+     "summoner_name": "DemoPlayer",
+     "champion": "Sylas",
+     "team": "BLUE",
+     "win": false,
+     "role": "TOP",
+     "kills": 13,
+     "deaths": 7,
+     "assists": 4,
+     "cs": 184,
+     "gold_earned": 14186,
+     "damage_to_champions": 37409,
+     "vision_score": 16,
+     "items": [
+      3110,
+      3047,
+      3157,
+      4645,
+      4633,
+      2022,
+      3340
+     ]
+    },
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "team": "BLUE",
+     "win": false,
+     "role": "JUNGLE",
+     "kills": 5,
+     "deaths": 8,
+     "assists": 14,
+     "cs": 178,
+     "gold_earned": 11874,
+     "damage_to_champions": 17079,
+     "vision_score": 22,
+     "items": [
+      3110,
+      3068,
+      3047,
+      6653,
+      1031,
+      1057,
+      3340
+     ]
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "team": "BLUE",
+     "win": false,
+     "role": "MIDDLE",
+     "kills": 5,
+     "deaths": 11,
+     "assists": 7,
+     "cs": 149,
+     "gold_earned": 10376,
+     "damage_to_champions": 19960,
+     "vision_score": 18,
+     "items": [
+      1120,
+      3068,
+      3174,
+      3075,
+      3143,
+      0,
+      3340
+     ]
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "team": "BLUE",
+     "win": false,
+     "role": "BOTTOM",
+     "kills": 8,
+     "deaths": 7,
+     "assists": 5,
+     "cs": 218,
+     "gold_earned": 13543,
+     "damage_to_champions": 29165,
+     "vision_score": 30,
+     "items": [
+      3031,
+      1018,
+      2523,
+      3035,
+      3123,
+      3085,
+      3363
+     ]
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "team": "BLUE",
+     "win": false,
+     "role": "UTILITY",
+     "kills": 1,
+     "deaths": 8,
+     "assists": 15,
+     "cs": 26,
+     "gold_earned": 8486,
+     "damage_to_champions": 11713,
+     "vision_score": 70,
+     "items": [
+      3190,
+      3109,
+      3876,
+      3082,
+      3047,
+      0,
+      3364
+     ]
+    },
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "team": "RED",
+     "win": true,
+     "role": "TOP",
+     "kills": 2,
+     "deaths": 12,
+     "assists": 10,
+     "cs": 199,
+     "gold_earned": 10492,
+     "damage_to_champions": 22254,
+     "vision_score": 16,
+     "items": [
+      2019,
+      1036,
+      1055,
+      3111,
+      3153,
+      3181,
+      3364
+     ]
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "team": "RED",
+     "win": true,
+     "role": "JUNGLE",
+     "kills": 23,
+     "deaths": 3,
+     "assists": 8,
+     "cs": 248,
+     "gold_earned": 21434,
+     "damage_to_champions": 47617,
+     "vision_score": 26,
+     "items": [
+      6699,
+      3179,
+      3142,
+      6695,
+      6694,
+      3814,
+      3364
+     ]
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "team": "RED",
+     "win": true,
+     "role": "MIDDLE",
+     "kills": 5,
+     "deaths": 3,
+     "assists": 19,
+     "cs": 186,
+     "gold_earned": 12078,
+     "damage_to_champions": 31572,
+     "vision_score": 19,
+     "items": [
+      4401,
+      6662,
+      3173,
+      2504,
+      1057,
+      0,
+      3363
+     ]
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "team": "RED",
+     "win": true,
+     "role": "BOTTOM",
+     "kills": 10,
+     "deaths": 8,
+     "assists": 12,
+     "cs": 239,
+     "gold_earned": 15218,
+     "damage_to_champions": 27433,
+     "vision_score": 17,
+     "items": [
+      1086,
+      3031,
+      2523,
+      3036,
+      6670,
+      1037,
+      3363
+     ]
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "team": "RED",
+     "win": true,
+     "role": "UTILITY",
+     "kills": 1,
+     "deaths": 6,
+     "assists": 22,
+     "cs": 37,
+     "gold_earned": 8815,
+     "damage_to_champions": 12203,
+     "vision_score": 78,
+     "items": [
+      3876,
+      3190,
+      3109,
+      3111,
+      3211,
+      1033,
+      3364
+     ]
+    }
+   ]
+  }
+ ],
+ "last_game": {
+  "match_id": "DEMO_1",
+  "champion": "Sylas",
+  "role": "TOP",
+  "win": false,
+  "kda": "13/7/4",
+  "cs": 184,
+  "game_duration_min": 30.1,
+  "opponent_champion": "Irelia",
+  "diagnosis": [
+   "Defeat.",
+   "Many deaths (7) — check whether they cluster at a specific moment (failed teamfight? repeated ganks?).",
+   "You finished 3694 gold ahead of your direct opponent (Irelia) — good sign for lane/farm."
+  ]
+ },
+ "phase": {
+  "match_id": "DEMO_1",
+  "champion": "Sylas",
+  "win": false,
+  "my_team_color": "BLUE",
+  "teams": {
+   "my_allies": [
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "role": "JUNGLE"
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "role": "MIDDLE"
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "role": "BOTTOM"
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "role": "UTILITY"
+    }
+   ],
+   "enemy_team": [
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "role": "TOP"
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "role": "JUNGLE"
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "role": "MIDDLE"
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "role": "BOTTOM"
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "role": "UTILITY"
+    }
+   ]
+  },
+  "milestones": [
+   {
+    "minute": 10,
+    "me": {
+     "cs": 67,
+     "gold": 4145,
+     "level": 9
+    },
+    "opponent_champion": "Irelia",
+    "opponent": {
+     "cs": 69,
+     "gold": 3398,
+     "level": 7
+    },
+    "diff": {
+     "cs": -2,
+     "gold": 747,
+     "level": 2
+    }
+   },
+   {
+    "minute": 15,
+    "me": {
+     "cs": 109,
+     "gold": 6147,
+     "level": 12
+    },
+    "opponent_champion": "Irelia",
+    "opponent": {
+     "cs": 99,
+     "gold": 4582,
+     "level": 10
+    },
+    "diff": {
+     "cs": 10,
+     "gold": 1565,
+     "level": 2
+    }
+   },
+   {
+    "minute": 20,
+    "me": {
+     "cs": 155,
+     "gold": 8811,
+     "level": 15
+    },
+    "opponent_champion": "Irelia",
+    "opponent": {
+     "cs": 133,
+     "gold": 6880,
+     "level": 12
+    },
+    "diff": {
+     "cs": 22,
+     "gold": 1931,
+     "level": 3
+    }
+   }
+  ],
+  "by_phase": {
+   "laning_phase": [
+    {
+     "summoner_name": "DemoPlayer",
+     "champion": "Sylas",
+     "role": "TOP",
+     "team": "BLUE",
+     "is_me": true,
+     "kills": 4,
+     "deaths": 1,
+     "assists": 0,
+     "gold_gained": 3177
+    },
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "role": "JUNGLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 2,
+     "assists": 2,
+     "gold_gained": 3155
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "role": "MIDDLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 3,
+     "assists": 0,
+     "gold_gained": 2494
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "role": "BOTTOM",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 1,
+     "assists": 0,
+     "gold_gained": 2991
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "role": "UTILITY",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 3,
+     "gold_gained": 2011
+    },
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "role": "TOP",
+     "team": "RED",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 4,
+     "assists": 0,
+     "gold_gained": 2596
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "role": "JUNGLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 3,
+     "deaths": 1,
+     "assists": 0,
+     "gold_gained": 3696
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "role": "MIDDLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 1,
+     "assists": 2,
+     "gold_gained": 3358
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "role": "BOTTOM",
+     "team": "RED",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 2,
+     "assists": 1,
+     "gold_gained": 2988
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "role": "UTILITY",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 3,
+     "gold_gained": 1959
+    }
+   ],
+   "early": [
+    {
+     "summoner_name": "DemoPlayer",
+     "champion": "Sylas",
+     "role": "TOP",
+     "team": "BLUE",
+     "is_me": true,
+     "kills": 2,
+     "deaths": 1,
+     "assists": 0,
+     "gold_gained": 1373
+    },
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "role": "JUNGLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 0,
+     "assists": 2,
+     "gold_gained": 1666
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "role": "MIDDLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 1,
+     "assists": 1,
+     "gold_gained": 1132
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "role": "BOTTOM",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 1,
+     "assists": 0,
+     "gold_gained": 1172
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "role": "UTILITY",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 1,
+     "gold_gained": 724
+    },
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "role": "TOP",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 2,
+     "assists": 0,
+     "gold_gained": 737
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "role": "JUNGLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 0,
+     "assists": 2,
+     "gold_gained": 2095
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "role": "MIDDLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 1249
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "role": "BOTTOM",
+     "team": "RED",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 2,
+     "assists": 0,
+     "gold_gained": 1906
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "role": "UTILITY",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 2,
+     "gold_gained": 820
+    }
+   ],
+   "mid": [
+    {
+     "summoner_name": "DemoPlayer",
+     "champion": "Sylas",
+     "role": "TOP",
+     "team": "BLUE",
+     "is_me": true,
+     "kills": 5,
+     "deaths": 4,
+     "assists": 2,
+     "gold_gained": 5687
+    },
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "role": "JUNGLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 5,
+     "assists": 8,
+     "gold_gained": 3396
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "role": "MIDDLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 5,
+     "assists": 3,
+     "gold_gained": 2605
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "role": "BOTTOM",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 4,
+     "deaths": 4,
+     "assists": 4,
+     "gold_gained": 4318
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "role": "UTILITY",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 4,
+     "assists": 7,
+     "gold_gained": 2963
+    },
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "role": "TOP",
+     "team": "RED",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 5,
+     "assists": 8,
+     "gold_gained": 3645
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "role": "JUNGLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 15,
+     "deaths": 1,
+     "assists": 3,
+     "gold_gained": 9028
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "role": "MIDDLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 1,
+     "assists": 14,
+     "gold_gained": 4574
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "role": "BOTTOM",
+     "team": "RED",
+     "is_me": false,
+     "kills": 3,
+     "deaths": 3,
+     "assists": 7,
+     "gold_gained": 5736
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "role": "UTILITY",
+     "team": "RED",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 3,
+     "assists": 12,
+     "gold_gained": 3245
+    }
+   ],
+   "late": [
+    {
+     "summoner_name": "DemoPlayer",
+     "champion": "Sylas",
+     "role": "TOP",
+     "team": "BLUE",
+     "is_me": true,
+     "kills": 2,
+     "deaths": 1,
+     "assists": 2,
+     "gold_gained": 2418
+    },
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "role": "JUNGLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 2,
+     "deaths": 1,
+     "assists": 2,
+     "gold_gained": 2268
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "role": "MIDDLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 2,
+     "assists": 3,
+     "gold_gained": 1665
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "role": "BOTTOM",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 1,
+     "deaths": 1,
+     "assists": 1,
+     "gold_gained": 2196
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "role": "UTILITY",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 2,
+     "assists": 4,
+     "gold_gained": 1283
+    },
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "role": "TOP",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 2,
+     "gold_gained": 1647
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "role": "JUNGLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 4,
+     "deaths": 1,
+     "assists": 3,
+     "gold_gained": 2485
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "role": "MIDDLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 3,
+     "gold_gained": 830
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "role": "BOTTOM",
+     "team": "RED",
+     "is_me": false,
+     "kills": 3,
+     "deaths": 1,
+     "assists": 4,
+     "gold_gained": 1844
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "role": "UTILITY",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 1,
+     "assists": 5,
+     "gold_gained": 921
+    }
+   ],
+   "ultra_late": [
+    {
+     "summoner_name": "DemoPlayer",
+     "champion": "Sylas",
+     "role": "TOP",
+     "team": "BLUE",
+     "is_me": true,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player2",
+     "champion": "Amumu",
+     "role": "JUNGLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player3",
+     "champion": "Malphite",
+     "role": "MIDDLE",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player4",
+     "champion": "Jinx",
+     "role": "BOTTOM",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player5",
+     "champion": "Nautilus",
+     "role": "UTILITY",
+     "team": "BLUE",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player6",
+     "champion": "Irelia",
+     "role": "TOP",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player7",
+     "champion": "Khazix",
+     "role": "JUNGLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player8",
+     "champion": "KSante",
+     "role": "MIDDLE",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player9",
+     "champion": "Caitlyn",
+     "role": "BOTTOM",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    },
+    {
+     "summoner_name": "Player10",
+     "champion": "Leona",
+     "role": "UTILITY",
+     "team": "RED",
+     "is_me": false,
+     "kills": 0,
+     "deaths": 0,
+     "assists": 0,
+     "gold_gained": 0
+    }
+   ]
+  },
+  "my_kill_events": [
+   {
+    "timestamp": "4:15",
+    "phase": "laning_phase",
+    "position_raw": {
+     "x": 3850,
+     "y": 13492
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "6:12",
+    "phase": "laning_phase",
+    "position_raw": {
+     "x": 1553,
+     "y": 11975
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "7:43",
+    "phase": "laning_phase",
+    "position_raw": {
+     "x": 1644,
+     "y": 11448
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "9:19",
+    "phase": "laning_phase",
+    "position_raw": {
+     "x": 832,
+     "y": 10502
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "10:20",
+    "phase": "early",
+    "position_raw": {
+     "x": 1359,
+     "y": 11605
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "12:40",
+    "phase": "early",
+    "position_raw": {
+     "x": 4282,
+     "y": 14052
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "18:18",
+    "phase": "mid",
+    "position_raw": {
+     "x": 1336,
+     "y": 10478
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "19:22",
+    "phase": "mid",
+    "position_raw": {
+     "x": 6204,
+     "y": 6172
+    },
+    "approximate_zone": "river (near mid)",
+    "victim_champion": "Caitlyn",
+    "assisted_by": []
+   },
+   {
+    "timestamp": "21:45",
+    "phase": "mid",
+    "position_raw": {
+     "x": 8908,
+     "y": 1396
+    },
+    "approximate_zone": "bot lane / lower jungle (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": [
+     "Amumu",
+     "Malphite",
+     "Nautilus"
+    ]
+   },
+   {
+    "timestamp": "21:55",
+    "phase": "mid",
+    "position_raw": {
+     "x": 10636,
+     "y": 1818
+    },
+    "approximate_zone": "bot lane / lower jungle (approximate)",
+    "victim_champion": "Khazix",
+    "assisted_by": [
+     "Amumu",
+     "Nautilus"
+    ]
+   },
+   {
+    "timestamp": "23:49",
+    "phase": "mid",
+    "position_raw": {
+     "x": 6110,
+     "y": 4597
+    },
+    "approximate_zone": "river or mid lane (approximate)",
+    "victim_champion": "Leona",
+    "assisted_by": [
+     "Amumu",
+     "Malphite",
+     "Jinx"
+    ]
+   },
+   {
+    "timestamp": "27:24",
+    "phase": "late",
+    "position_raw": {
+     "x": 5094,
+     "y": 4998
+    },
+    "approximate_zone": "river or mid lane (approximate)",
+    "victim_champion": "Khazix",
+    "assisted_by": [
+     "Amumu",
+     "Malphite",
+     "Nautilus"
+    ]
+   },
+   {
+    "timestamp": "27:38",
+    "phase": "late",
+    "position_raw": {
+     "x": 4347,
+     "y": 4869
+    },
+    "approximate_zone": "river or mid lane (approximate)",
+    "victim_champion": "Irelia",
+    "assisted_by": [
+     "Jinx",
+     "Nautilus"
+    ]
+   }
+  ],
+  "my_death_events": [
+   {
+    "timestamp": "1:33",
+    "phase": "laning_phase",
+    "position_raw": {
+     "x": 1214,
+     "y": 10481
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "killer_champion": "Irelia",
+    "killer_assisted_by": [],
+    "other_kills_within_15s": [],
+    "was_skirmish": false
+   },
+   {
+    "timestamp": "10:53",
+    "phase": "early",
+    "position_raw": {
+     "x": 2297,
+     "y": 12219
+    },
+    "approximate_zone": "top lane / upper jungle (approximate)",
+    "killer_champion": "Khazix",
+    "killer_assisted_by": [],
+    "other_kills_within_15s": [],
+    "was_skirmish": false
+   },
+   {
+    "timestamp": "17:07",
+    "phase": "mid",
+    "position_raw": {
+     "x": 8154,
+     "y": 7658
+    },
+    "approximate_zone": "river (near mid)",
+    "killer_champion": "KSante",
+    "killer_assisted_by": [],
+    "other_kills_within_15s": [
+     {
+      "timestamp": "17:11",
+      "killer_champion": "Khazix",
+      "victim_champion": "Malphite"
+     }
+    ],
+    "was_skirmish": true
+   },
+   {
+    "timestamp": "19:57",
+    "phase": "mid",
+    "position_raw": {
+     "x": 6846,
+     "y": 4156
+    },
+    "approximate_zone": "bot lane / lower jungle (approximate)",
+    "killer_champion": "Khazix",
+    "killer_assisted_by": [
+     "Irelia",
+     "KSante",
+     "Leona"
+    ],
+    "other_kills_within_15s": [
+     {
+      "timestamp": "19:47",
+      "killer_champion": "Khazix",
+      "victim_champion": "Amumu"
+     },
+     {
+      "timestamp": "19:59",
+      "killer_champion": "Khazix",
+      "victim_champion": "Nautilus"
+     },
+     {
+      "timestamp": "20:04",
+      "killer_champion": "Malphite",
+      "victim_champion": "Irelia"
+     },
+     {
+      "timestamp": "20:06",
+      "killer_champion": "Khazix",
+      "victim_champion": "Malphite"
+     }
+    ],
+    "was_skirmish": true
+   },
+   {
+    "timestamp": "22:01",
+    "phase": "mid",
+    "position_raw": {
+     "x": 10642,
+     "y": 2802
+    },
+    "approximate_zone": "bot lane / lower jungle (approximate)",
+    "killer_champion": "Caitlyn",
+    "killer_assisted_by": [
+     "KSante",
+     "Leona"
+    ],
+    "other_kills_within_15s": [
+     {
+      "timestamp": "21:49",
+      "killer_champion": "Khazix",
+      "victim_champion": "Amumu"
+     },
+     {
+      "timestamp": "21:51",
+      "killer_champion": "Leona",
+      "victim_champion": "Malphite"
+     },
+     {
+      "timestamp": "21:54",
+      "killer_champion": "Khazix",
+      "victim_champion": "Nautilus"
+     },
+     {
+      "timestamp": "21:55",
+      "killer_champion": "Sylas",
+      "victim_champion": "Khazix"
+     }
+    ],
+    "was_skirmish": true
+   },
+   {
+    "timestamp": "24:18",
+    "phase": "mid",
+    "position_raw": {
+     "x": 8567,
+     "y": 5766
+    },
+    "approximate_zone": "bot lane / lower jungle (approximate)",
+    "killer_champion": "Khazix",
+    "killer_assisted_by": [
+     "KSante"
+    ],
+    "other_kills_within_15s": [
+     {
+      "timestamp": "24:05",
+      "killer_champion": "Malphite",
+      "victim_champion": "KSante"
+     },
+     {
+      "timestamp": "24:28",
+      "killer_champion": "Jinx",
+      "victim_champion": "Irelia"
+     }
+    ],
+    "was_skirmish": true
+   },
+   {
+    "timestamp": "28:55",
+    "phase": "late",
+    "position_raw": {
+     "x": 8889,
+     "y": 4409
+    },
+    "approximate_zone": "bot lane / lower jungle (approximate)",
+    "killer_champion": "Khazix",
+    "killer_assisted_by": [
+     "KSante",
+     "Caitlyn"
+    ],
+    "other_kills_within_15s": [
+     {
+      "timestamp": "29:01",
+      "killer_champion": "Khazix",
+      "victim_champion": "Nautilus"
+     },
+     {
+      "timestamp": "29:07",
+      "killer_champion": "Caitlyn",
+      "victim_champion": "Malphite"
+     }
+    ],
+    "was_skirmish": true
+   }
+  ],
+  "diagnosis": [
+   "Your gold gap against your opponent improved: +747 gold at 10 min to +1931 at 20 min.",
+   "Your costliest phase is mid (4 deaths)."
+  ]
+ },
+ "stats": {
+  "overall": {
+   "games_played": 1,
+   "winrate": 0.0,
+   "avg_kda": 2.43,
+   "avg_kills": 13.0,
+   "avg_deaths": 7.0,
+   "avg_assists": 4.0,
+   "avg_cs_per_min": 6.11
+  },
+  "by_champion": {
+   "Sylas": {
+    "games": 1,
+    "winrate": 0.0,
+    "avg_kda": 2.43
+   }
+  },
+  "vs_opponent_avg": {
+   "games_with_opponent_data": 1,
+   "gold_diff_avg": 3694.0,
+   "cs_diff_avg": -15.0,
+   "kda_diff_avg": 1.43
+  },
+  "worst_games": [
+   {
+    "match_id": "DEMO_1",
+    "champion": "Sylas",
+    "win": false,
+    "kda": "13/7/4",
+    "likely_reasons": [
+     "many deaths"
+    ]
+   }
+  ]
+ }
+}
