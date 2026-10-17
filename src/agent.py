@@ -31,7 +31,7 @@ load_dotenv()
 # Generic LLM config: any OpenAI-compatible endpoint (Gemini, Groq, ...) via .env
 LLM_API_KEY = os.getenv("LLM_API_KEY")
 LLM_URL = os.getenv("LLM_URL", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions")
-LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-3.8-flash")
 MAX_STEPS = 6
 # Spells/wards never appear in the tool data, so any mention is invented
 FORBIDDEN_DETAILS = re.compile(r"\b(?:spells?|wards?)\b|\([QWER]\)|\b[QWER] ?\+ ?\w", re.IGNORECASE)

@@ -9,5 +9,5 @@ services:
       RIOT_API_KEY: ${RIOT_API_KEY:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
       LLM_URL: ${LLM_URL:-https://generativelanguage.googleapis.com/v1beta/openai/chat/completions}
-      LLM_MODEL: ${LLM_MODEL:-gemini-2.5-flash}
+      LLM_MODEL: ${LLM_MODEL:-gemini-3.8-flash}
     restart: unless-stopped

@@ -12,7 +12,7 @@ The questions were asked in French; the replayable cases in
 ## Methodology
 
 - Model used: `mistral-small-latest` (free tier). The default model of the
-  current code is `gemini-2.5-flash`; this evaluation has not been re-run on it.
+  current code is `gemini-3.8-flash`; this evaluation has not been re-run on it.
 - Each question is asked to the agent through `agent.py`, in real conditions.
 - The "Correct" / "Incorrect" judgement is based on: (1) was the right tool
   called, (2) is the answer grounded in data actually returned by that tool,
