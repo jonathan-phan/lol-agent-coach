@@ -16,6 +16,7 @@ Usage :
     puis pose tes questions en langage naturel dans le terminal.
 """
 import os
+import re
 import sys
 import json
 
@@ -30,9 +31,13 @@ from tools.phase_analysis import analyze_last_game_by_phase  # noqa: E402
 
 load_dotenv()
 
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
-MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
-MODEL = "mistral-small-latest"  # gratuit / peu coûteux, largement suffisant ici
+# Config LLM générique : tout endpoint compatible OpenAI (Gemini, Groq...) via .env
+LLM_API_KEY = os.getenv("LLM_API_KEY")
+LLM_URL = os.getenv("LLM_URL", "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions")
+LLM_MODEL = os.getenv("LLM_MODEL", "gemini-2.5-flash")
+MAX_STEPS = 6
+# Sorts/wards : jamais présents dans les données des outils, donc toujours inventés
+FORBIDDEN_DETAILS = re.compile(r"\b(?:sorts?|wards?)\b|\([QWER]\)|\b[QWER] ?\+ ?\w", re.IGNORECASE)
 
 # --- 1. Le registre des outils : nom -> fonction Python réelle ---
 # Chaque outil ici a la même signature (game_name, tag_line) pour rester
@@ -193,27 +198,30 @@ def run_tool(name: str, tool_input: dict) -> dict:
         return {"error": f"Erreur lors de l'exécution de {name} : {str(e)}"}
 
 
-def call_mistral(messages: list) -> dict:
-    """Appel brut à l'API Mistral (chat completions + tools)."""
+def call_llm(messages: list) -> dict:
+    """Appel brut à l'API Gemini (endpoint compatible OpenAI, chat completions + tools)."""
     headers = {
-        "Authorization": f"Bearer {MISTRAL_API_KEY}",
+        "Authorization": f"Bearer {LLM_API_KEY}",
         "Content-Type": "application/json",
     }
     body = {
-        "model": MODEL,
+        "model": LLM_MODEL,
         "messages": messages,
         "tools": TOOLS_SCHEMA,
-        "tool_choice": "auto",
     }
-    resp = requests.post(MISTRAL_URL, headers=headers, json=body)
+    resp = requests.post(LLM_URL, headers=headers, json=body, timeout=60)
+    if resp.status_code in (401, 403):
+        raise RuntimeError("Clé LLM invalide : vérifie LLM_API_KEY dans .env")
+    if resp.status_code == 429:
+        raise RuntimeError("Quota LLM atteint : réessaie plus tard ou change de modèle/fournisseur.")
     if not resp.ok:
-        raise RuntimeError(f"Mistral API error {resp.status_code}: {resp.text}")
+        raise RuntimeError(f"LLM API error {resp.status_code}: {resp.text}")
     return resp.json()
 
 
 def agent_loop(user_message: str, messages: list) -> tuple[str, list]:
     """
-    Boucle principale : envoie la conversation à Mistral, exécute les outils
+    Boucle principale : envoie la conversation à Gemini, exécute les outils
     demandés, renvoie les résultats, répète jusqu'à une réponse finale.
 
     Retourne (réponse_texte, messages_mis_à_jour) pour pouvoir continuer la
@@ -222,9 +230,10 @@ def agent_loop(user_message: str, messages: list) -> tuple[str, list]:
     if not messages:
         messages.append({"role": "system", "content": SYSTEM_PROMPT})
     messages.append({"role": "user", "content": user_message})
+    retried = False
 
-    while True:
-        data = call_mistral(messages)
+    for _ in range(MAX_STEPS):
+        data = call_llm(messages)
         choice = data["choices"][0]
         message = choice["message"]
 
@@ -232,8 +241,19 @@ def agent_loop(user_message: str, messages: list) -> tuple[str, list]:
 
         # Le LLM a fini de répondre (pas d'appel d'outil en attente)
         if not tool_calls:
-            messages.append({"role": "assistant", "content": message.get("content", "")})
-            return message.get("content", ""), messages
+            content = message.get("content") or ""
+            messages.append({"role": "assistant", "content": content})
+            if not retried and FORBIDDEN_DETAILS.search(content):
+                retried = True
+                messages.append({
+                    "role": "user",
+                    "content": (
+                        "Ta réponse mentionne des sorts (Q/W/E/R) ou des wards absents des données. "
+                        "Refais-la en te limitant strictement aux données des outils."
+                    ),
+                })
+                continue
+            return content, messages
 
         # Le LLM veut appeler un ou plusieurs outils
         messages.append({
@@ -253,7 +273,9 @@ def agent_loop(user_message: str, messages: list) -> tuple[str, list]:
                 "tool_call_id": call["id"],
                 "content": json.dumps(result, ensure_ascii=False),
             })
-        # la boucle continue : on renvoie à Mistral avec les résultats d'outils
+        # la boucle continue : on renvoie au LLM avec les résultats d'outils
+
+    return "Trop d'étapes d'outils sans réponse finale, reformule ta question.", messages
 
 
 if __name__ == "__main__":
@@ -272,5 +294,9 @@ if __name__ == "__main__":
         # On glisse le pseudo/tag dans le message pour que le LLM les ait
         # sous la main sans que tu aies à les répéter à chaque question.
         contextualized = f"[joueur: {game_name}#{tag_line}] {user_input}"
-        answer, conversation = agent_loop(contextualized, conversation)
+        try:
+            answer, conversation = agent_loop(contextualized, conversation)
+        except (RuntimeError, requests.RequestException) as e:
+            print(f"\n[erreur] {e}\n")
+            continue
         print(f"\nCoach : {answer}\n")

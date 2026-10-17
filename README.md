@@ -43,8 +43,8 @@ User question
 ## Boucle agentique (le cœur du projet)
 
 1. L'utilisateur pose une question
-2. Le LLM (Mistral, via API HTTP directe) reçoit la question + la liste des
-   outils disponibles (nom, description, paramètres)
+2. Le LLM (Gemini, via API HTTP directe, endpoint compatible OpenAI) reçoit
+   la question + la liste des outils disponibles (nom, description, paramètres)
 3. Le LLM répond soit avec du texte final, soit avec une demande d'appel
    d'outil (`tool_calls`)
 4. Si c'est un appel d'outil : on l'exécute en Python, on renvoie le
@@ -53,8 +53,9 @@ User question
 
 Voir `src/agent.py` pour l'implémentation — écrite sans framework pour bien
 comprendre le mécanisme sous-jacent à LangGraph/CrewAI. Choix du modèle
-Mistral plutôt que Claude/OpenAI : tier gratuit disponible, et cohérence
-avec l'objectif de candidater chez Mistral AI.
+Gemini (tier gratuit) plutôt que Claude/OpenAI/Mistral : gratuit et simple
+à obtenir pour n'importe quel utilisateur qui veut lancer cet agent avec
+sa propre clé.
 
 ## Les 4 outils exposés à l'agent
 
@@ -67,17 +68,36 @@ avec l'objectif de candidater chez Mistral AI.
 
 ## Setup
 
+Ce projet est pensé pour être cloné et lancé en local par n'importe quel
+joueur : chacun fournit ses propres clés API (pas de clé partagée, pas de
+serveur, pas de compte/login).
+
 ```bash
 python -m venv venv
 venv\Scripts\activate          # Windows
 pip install -r requirements.txt
-copy .env.example .env         # puis renseigner tes clés
 ```
 
-Clés nécessaires dans `.env` :
+Crée ensuite un fichier `.env` à la racine du projet avec :
 
-- `RIOT_API_KEY` — https://developer.riotgames.com (clé dev, **expire toutes les 24h**, à régénérer à chaque session)
-- `MISTRAL_API_KEY` — https://console.mistral.ai (tier gratuit)
+```
+RIOT_API_KEY=ta_cle_riot
+LLM_API_KEY=ta_cle_llm
+# optionnels (défaut : Gemini)
+# LLM_URL=https://api.cohere.ai/compatibility/v1/chat/completions
+# LLM_MODEL=command-a-plus-05-2026
+```
+
+Le fournisseur LLM est interchangeable : tout endpoint compatible OpenAI
+(Gemini, Groq, Cohere...) fonctionne en changeant ces 3 variables, sans
+toucher au code.
+
+Clés nécessaires (toutes gratuites) :
+
+- `RIOT_API_KEY` — https://developer.riotgames.com (clé dev perso, **expire
+  toutes les 24h**, à régénérer à chaque session via "Regenerate API Key")
+- `LLM_API_KEY` — clé de ton fournisseur LLM (ex. https://aistudio.google.com/apikey (tier gratuit
+  Gemini, pas d'expiration 24h mais quota quotidien limité par clé)
 
 ## Utilisation
 
@@ -87,10 +107,22 @@ py src\agent.py "TonPseudo" "TAG"
 
 Puis pose tes questions en langage naturel. Tape `quit` pour sortir.
 
+Interface web locale (Streamlit) :
+
+```bash
+streamlit run app.py
+```
+
+Seules les parties Solo/Duo (queue 420) sont analysées, remakes exclus.
+
 ## Évaluation
 
 Voir [`tests/eval_results.md`](tests/eval_results.md) pour le détail complet.
-Résumé : sur 6 questions-tests jugées manuellement (par un joueur ex-Diamond,
+Les questions sont rejouables avec `python tests/run_eval.py "Pseudo" "TAG"`
+(`tests/eval_cases.json`) : le choix d'outil est vérifié automatiquement, le
+contenu des réponses reste jugé à la main.
+
+Résumé (première évaluation, sur `mistral-small`) : sur 6 questions-tests jugées manuellement (par un joueur ex-Diamond,
 donc capable de juger la pertinence réelle des diagnostics), **1 réponse
 correcte complète, 3 partielles, 2 incorrectes** — les erreurs identifiées
 sont classées en 3 catégories distinctes :
@@ -110,17 +142,20 @@ voir le détail dans le fichier d'éval.
 
 ## Limites connues
 
-- Le modèle utilisé (`mistral-small`, tier gratuit) ne respecte pas
-  parfaitement les règles anti-hallucination sous certaines formulations
-  ("prouve-le", demandes de détail) — non résolu, documenté comme piste
-  d'amélioration (tester `mistral-medium`)
-- Pas de mémoire entre sessions
+- Le modèle utilisé (tier gratuit Gemini) ne respecte pas parfaitement les
+  règles anti-hallucination sous certaines formulations ("prouve-le",
+  demandes de détail) — non résolu, documenté comme piste d'amélioration
+- Pas de mémoire entre sessions ni de stockage persistant des games : tout
+  est recalculé à la volée depuis l'API Riot à chaque lancement
 - Pas d'accès aux données de wards, sorts utilisés, ou build order — l'API
   Riot timeline ne les expose pas dans les champs actuellement exploités
 - Pas de données en temps réel (champ select, game en cours) — évalué et
   volontairement écarté : la seule voie techniquement possible (LCU API)
   n'est pas officiellement documentée par Riot et est jugée trop fragile
   pour ce projet
+- Pensé pour un usage multi-joueurs en local : chaque utilisateur clone le
+  repo et fournit ses propres clés (Riot + Google), il n'y a pas de clé
+  partagée ni de serveur central
 
 ## Ce que ce projet démontre
 

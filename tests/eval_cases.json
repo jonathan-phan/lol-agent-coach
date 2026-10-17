@@ -1,0 +1,12 @@
+[
+  {"question": "Analyse ma dernière game", "expected_tools": ["analyze_last_game", "analyze_last_game_by_phase"]},
+  {"question": "Pourquoi j'ai perdu ma dernière game ?", "expected_tools": ["analyze_last_game_by_phase", "analyze_last_game"]},
+  {"question": "À quel moment ma dernière game a basculé ?", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Analyse ma laning phase", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Résume rapidement ma dernière game", "expected_tools": ["analyze_last_game"]},
+  {"question": "Pourquoi je perds en ce moment ?", "expected_tools": ["compute_stats"]},
+  {"question": "Suis-je meilleur sur certains champions ?", "expected_tools": ["compute_stats"]},
+  {"question": "Quel est mon winrate sur mes 10 dernières games ?", "expected_tools": ["compute_stats"]},
+  {"question": "Prouve-moi que j'ai perdu mes trades, avec les sorts utilisés", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Mon support m'a-t-il aidé sur mes morts ?", "expected_tools": ["analyze_last_game_by_phase"]}
+]

@@ -10,7 +10,10 @@ Deux bases d'URL différentes chez Riot, c'est le premier piège à connaître :
 Doc officielle : https://developer.riotgames.com/apis
 """
 import os
+import json
 import time
+from functools import lru_cache
+from urllib.parse import quote
 import requests
 from dotenv import load_dotenv
 
@@ -22,48 +25,67 @@ REGIONAL = os.getenv("RIOT_REGIONAL", "europe")    # europe, americas, asia
 
 HEADERS = {"X-Riot-Token": RIOT_API_KEY}
 
+CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "cache")
+
 
 class RiotAPIError(Exception):
     pass
 
 
-def _get(url: str, params: dict | None = None) -> dict:
-    """Wrapper GET avec gestion basique du rate limit (429)."""
-    resp = requests.get(url, headers=HEADERS, params=params or {})
+def _get(url: str, params: dict | None = None, _retries: int = 3) -> dict:
+    """Wrapper GET avec timeout, retry borné sur 429 et messages d'erreur clairs."""
+    if not RIOT_API_KEY:
+        raise RiotAPIError("RIOT_API_KEY introuvable : vérifie ton fichier .env")
 
-    if resp.status_code == 429:
-        retry_after = int(resp.headers.get("Retry-After", 1))
-        time.sleep(retry_after)
-        return _get(url, params)
+    resp = requests.get(url, headers=HEADERS, params=params or {}, timeout=15)
 
-    if resp.status_code == 403:
+    if resp.status_code == 429 and _retries > 0:
+        time.sleep(int(resp.headers.get("Retry-After", 1)))
+        return _get(url, params, _retries - 1)
+
+    if resp.status_code in (401, 403):
         raise RiotAPIError(
-            "403 Forbidden — ta clé API a probablement expiré (valable 24h "
-            "en dev). Régénère-la sur https://developer.riotgames.com"
+            f"{resp.status_code} — clé Riot invalide ou expirée (24h en dev). "
+            "Régénère-la sur https://developer.riotgames.com"
         )
+    if resp.status_code == 404:
+        raise RiotAPIError("404 — introuvable (pseudo/tag incorrect, ou game pas encore disponible).")
+    if resp.status_code == 429:
+        raise RiotAPIError("429 — quota Riot dépassé, réessaie dans 2 minutes.")
     if not resp.ok:
         raise RiotAPIError(f"Riot API error {resp.status_code}: {resp.text}")
 
     return resp.json()
 
 
+def _get_cached(key: str, url: str) -> dict:
+    """Un match terminé ne change jamais : on le stocke sur disque."""
+    path = os.path.join(CACHE_DIR, f"{key}.json")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    data = _get(url)
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f)
+    return data
+
+
+@lru_cache(maxsize=32)
 def get_puuid(game_name: str, tag_line: str) -> str:
     """Récupère le PUUID (identifiant stable) à partir du Riot ID (pseudo#tag)."""
-    url = f"https://{REGIONAL}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{game_name}/{tag_line}"
+    url = f"https://{REGIONAL}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(game_name)}/{quote(tag_line)}"
     data = _get(url)
     return data["puuid"]
 
 def get_match_timeline(match_id: str) -> dict:
     """Détail minute par minute d'une game."""
     url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
-    return _get(url)
+    return _get_cached(f"{match_id}_timeline", url)
 
 
-def get_match_ids(puuid: str, count: int = 20, queue: int | None = None) -> list[str]:
-    """Liste les IDs des derniers matchs joués.
-
-    queue=420 -> Solo/Duo ranked, 440 -> Flex ranked (utile pour filtrer plus tard)
-    """
+def get_match_ids(puuid: str, count: int = 20, queue: int | None = 420) -> list[str]:
+    """Liste les IDs des derniers matchs joués (Solo/Duo par défaut ; 440 = Flex)."""
     url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
     params = {"count": count}
     if queue:
@@ -74,7 +96,7 @@ def get_match_ids(puuid: str, count: int = 20, queue: int | None = None) -> list
 def get_match_detail(match_id: str) -> dict:
     """Détail complet d'un match (tous les joueurs, toutes les stats)."""
     url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/{match_id}"
-    return _get(url)
+    return _get_cached(match_id, url)
 
 
 def _simplify_participant(p: dict) -> dict:
@@ -116,6 +138,10 @@ def get_match_history(game_name: str, tag_line: str, count: int = 10) -> list[di
         detail = get_match_detail(mid)
         participants = detail["info"]["participants"]
 
+        # remakes : stats inexploitables
+        if detail["info"]["gameDuration"] < 300:
+            continue
+
         me_raw = next(p for p in participants if p["puuid"] == puuid)
         me = _simplify_participant(me_raw)
 
@@ -137,7 +163,6 @@ def get_match_history(game_name: str, tag_line: str, count: int = 10) -> list[di
             "opponent": opponent,
             "all_players": all_players,
         })
-        time.sleep(1.2)  # rate limit dev key : 20 req/1s, 100 req/2min -> on reste safe
 
     return results
 
