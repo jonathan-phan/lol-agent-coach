@@ -1,87 +1,87 @@
-# Évaluation de l'agent — LoL Agent Coach
+# Agent evaluation — LoL Agent Coach
 
-Ce fichier documente une évaluation manuelle de l'agent, réalisée par Jonathan
-(ex-joueur Diamond), sur des questions posées en conditions réelles pendant
-le développement. Chaque cas a été jugé par comparaison entre la réponse de
-l'agent et le déroulé réel de la game (connu du joueur ou vérifiable dans les
-données brutes retournées par les outils).
+This file documents a manual evaluation of the agent, carried out by the
+author (a former Diamond player), on questions asked in real conditions
+during development. Each case was judged by comparing the agent's answer
+with what actually happened in the game (known to the player, or verifiable
+in the raw data returned by the tools).
 
-## Méthodologie
+The questions were asked in French; the replayable cases in
+`eval_cases.json` are their English equivalents.
 
-- Modèle utilisé : `mistral-small-latest` (tier gratuit)
-- Chaque question est posée à l'agent via `agent.py`, en conditions réelles
-- Le jugement "Correct" / "Incorrect" est basé sur : (1) le bon outil a-t-il
-  été appelé, (2) la réponse est-elle fondée sur des données réellement
-  retournées par cet outil, (3) le joueur confirme-t-il que le diagnostic
-  correspond à son vécu de la game
+## Methodology
 
-## Résultats
+- Model used: `mistral-small-latest` (free tier). The default model of the
+  current code is `gemini-2.5-flash`; this evaluation has not been re-run on it.
+- Each question is asked to the agent through `agent.py`, in real conditions.
+- The "Correct" / "Incorrect" judgement is based on: (1) was the right tool
+  called, (2) is the answer grounded in data actually returned by that tool,
+  (3) does the player confirm the diagnosis matches how they experienced the game.
 
-| #   | Question posée                                           | Outil attendu                | Outil appelé               | Verdict      | Type de problème observé                                                                                                                                                                             |
-| --- | -------------------------------------------------------- | ---------------------------- | -------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | "Pourquoi j'ai perdu ma dernière game ?"                 | analyze_last_game / by_phase | analyze_last_game_by_phase | ✅ Correct   | —                                                                                                                                                                                                    |
-| 2   | "Analyse le early et mid game contre Leona/MF"           | analyze_last_game_by_phase   | analyze_last_game_by_phase | ⚠️ Partiel   | N'identifiait pas correctement qui était allié vs adversaire (corrigé depuis, voir Fix #1)                                                                                                           |
-| 3   | "Les trades que j'ai perdus, prouve-le"                  | analyze_last_game_by_phase   | analyze_last_game_by_phase | ❌ Incorrect | **Hallucination sévère** : a inventé un faux tableau avec sorts (Q/E), timestamps précis non vérifiables, et un faux extrait JSON avec des clés qui n'existent dans aucun outil                      |
-| 4   | "Comment j'ai joué ?" (mon support était présent)        | —                            | analyze_last_game_by_phase | ❌ Incorrect | A conclu "pas d'aide de ton support" à partir de l'absence de kill dans `other_kills_within_15s` — confusion entre absence de donnée et absence du fait                                              |
-| 5   | "Analyse ma laning phase" (jungler mort juste avant moi) | —                            | analyze_last_game_by_phase | ❌ Incorrect | A interprété la mort proche d'un allié comme "aucune aide" alors que c'est une preuve de participation au même combat                                                                                |
-| 6   | "Résumé complet de la game"                              | compute_stats ou by_phase    | analyze_last_game_by_phase | ⚠️ Partiel   | Bonne synthèse chiffrée, mais 100% orientée sur les points faibles (aucun point fort mentionné) et réintroduction d'un sort inventé ("Q + auto-attaque") malgré l'interdiction dans le system prompt |
+## Results
 
-**Score global observé sur ces 6 tests : 1 correct complet, 3 partiels, 2 incorrects (hallucination/mauvaise interprétation).**
+| #   | Question asked                                            | Expected tool                | Tool called                | Verdict      | Observed problem                                                                                                                                                                                                      |
+| --- | --------------------------------------------------------- | ---------------------------- | -------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | "Why did I lose my last game?"                            | analyze_last_game / by_phase | analyze_last_game_by_phase | Correct      | —                                                                                                                                                                                                                     |
+| 2   | "Analyze the early and mid game against Leona/MF"         | analyze_last_game_by_phase   | analyze_last_game_by_phase | Partial      | Did not correctly tell allies from opponents (fixed since, see Fix #1)                                                                                                                                                |
+| 3   | "The trades I lost, prove it"                             | analyze_last_game_by_phase   | analyze_last_game_by_phase | Incorrect    | **Severe hallucination**: invented a fake table with spells (Q/E), unverifiable precise timestamps, and a fake JSON excerpt with keys that exist in no tool                                                            |
+| 4   | "How did I play?" (my support was present)                | —                            | analyze_last_game_by_phase | Incorrect    | Concluded "no help from your support" from the absence of a kill in `other_kills_within_15s` — confused absence of data with absence of the fact                                                                       |
+| 5   | "Analyze my laning phase" (jungler died just before me)   | —                            | analyze_last_game_by_phase | Incorrect    | Read a nearby ally death as "no help", when it is evidence of participation in the same fight                                                                                                                         |
+| 6   | "Full summary of the game"                                | compute_stats or by_phase    | analyze_last_game_by_phase | Partial      | Good numeric summary, but 100% focused on weaknesses (no strength mentioned) and reintroduced an invented spell ("Q + auto-attack") despite the ban in the system prompt                                              |
 
-## Enseignements et corrections apportées
+**Overall score on these 6 tests: 1 fully correct, 3 partial, 2 incorrect (hallucination / misinterpretation).**
 
-### Fix #1 — Confusion allié/adversaire
+## Lessons and fixes
 
-**Cause :** la structure de données obligeait le LLM à recouper le champ
-`team` de 10 joueurs à travers 3 phases pour déduire qui était dans quelle
-équipe.
-**Correction :** ajout d'un bloc explicite `teams: {my_allies, enemy_team}`
-en tête du résultat, pour éviter au LLM d'avoir à faire cette déduction.
+### Fix #1 — Ally/opponent confusion
 
-### Fix #2 — Hallucination de détails de combat (sorts, JSON inventé)
+**Cause:** the data structure forced the LLM to cross-check the `team` field
+of 10 players across 3 phases to work out who was on which team.
+**Fix:** added an explicit `teams: {my_allies, enemy_team}` block at the top
+of the result so the LLM does not have to infer it.
 
-**Cause :** face à une demande de "preuve", le modèle a préféré fabriquer
-une réponse convaincante plutôt que d'admettre une limite de données.
-**Correction :** règle explicite dans le system prompt interdisant toute
-mention de sorts (Q/W/E/R), de wards, ou de récit détaillé de combat non
-présent dans les données d'outils.
-**Limite persistante :** cette règle n'est pas respectée à 100% par
-`mistral-small` — le sort halluciné est réapparu dans le test #6 malgré
-l'interdiction explicite. C'est une limite documentée du modèle économique
-utilisé, pas un bug du code.
+### Fix #2 — Hallucinated fight details (spells, invented JSON)
 
-### Fix #3 — Absence de donnée interprétée comme absence du fait
+**Cause:** faced with a request for "proof", the model preferred to fabricate
+a convincing answer rather than admit a data limit.
+**Fix:** explicit rule in the system prompt forbidding any mention of spells
+(Q/W/E/R), wards, or a detailed fight account not present in the tool data.
+A regex guardrail in `agent.py` also detects such mentions and asks the
+model to redo its answer once.
+**Remaining limit:** the rule is not followed 100% by `mistral-small` — the
+hallucinated spell reappeared in test #6 despite the explicit ban. This is a
+documented limit of the cheap model used, not a code bug.
 
-**Cause :** `other_kills_within_15s` ne liste que des kills, pas la présence
-des joueurs vivants ; son absence a été lue à tort comme une preuve
-d'absence physique d'un allié.
-**Correction :** règle explicite dans le system prompt : une liste vide ou
-incomplète ne prouve rien sur la présence réelle des alliés.
+### Fix #3 — Absence of data read as absence of the fact
 
-### Fix #4 — Mauvaise interprétation causale d'une mort alliée proche
+**Cause:** `other_kills_within_15s` only lists kills, not the presence of
+living players; its absence was wrongly read as proof of an ally's physical
+absence.
+**Fix:** explicit system prompt rule: an empty or incomplete list proves
+nothing about allies' actual presence.
 
-**Cause :** une mort alliée survenue juste avant la mort du joueur a été
-lue comme un abandon ("aucune aide"), alors qu'elle indique en réalité une
-participation au même combat (l'allié a aussi perdu son duel).
-**Correction :** règle explicite demandant d'interpréter une mort alliée
-proche comme preuve de participation à un skirmish, pas d'absence.
+### Fix #4 — Wrong causal reading of a nearby ally death
 
-### Fix #5 — Feedback déséquilibré (uniquement négatif)
+**Cause:** an ally death shortly before the player's death was read as
+abandonment ("no help"), when it actually indicates participation in the same
+fight (the ally also lost their duel).
+**Fix:** explicit rule asking to interpret a nearby ally death as evidence of
+participation in a skirmish, not absence.
 
-**Cause :** le system prompt orientait implicitement vers un diagnostic de
-problèmes, sans demander de valoriser les points forts.
-**Correction :** règle explicite demandant un équilibre entre points forts
-et points faibles, basés sur les mêmes données chiffrées.
+### Fix #5 — Unbalanced feedback (negative only)
 
-## Limites connues, non résolues
+**Cause:** the system prompt implicitly steered towards diagnosing problems,
+without asking to highlight strengths.
+**Fix:** explicit rule asking for a balance between strengths and weaknesses,
+based on the same numbers.
 
-- Le modèle `mistral-small` ne respecte pas parfaitement les règles
-  anti-hallucination sous certaines formulations de question (notamment
-  quand on lui demande une "preuve" ou un luxe de détail) — passer à un
-  modèle plus robuste (`mistral-medium`) pourrait améliorer ce point, non
-  testé faute de budget
-- Pas de mémoire entre sessions : chaque lancement de `agent.py` repart
-  d'une conversation vide
-- Pas d'accès aux données de wards (posées/détruites), sorts utilisés, ou
-  ordre d'achat d'objets dans le temps — l'agent ne peut donc pas répondre
-  avec certitude aux questions portant sur ces éléments
+## Known, unresolved limits
+
+- `mistral-small` does not perfectly follow the anti-hallucination rules under
+  some phrasings (notably when asked for "proof" or extra detail) — a more
+  robust model (`mistral-medium`) might help; untested for lack of budget.
+- No memory between sessions: each launch of `agent.py` starts from an empty
+  conversation.
+- No access to ward data (placed/destroyed), spells used, or item purchase
+  order over time — the agent cannot answer questions about these with
+  certainty.

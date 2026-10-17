@@ -1,12 +1,14 @@
 [
-  {"question": "Analyse ma dernière game", "expected_tools": ["analyze_last_game", "analyze_last_game_by_phase"]},
-  {"question": "Pourquoi j'ai perdu ma dernière game ?", "expected_tools": ["analyze_last_game_by_phase", "analyze_last_game"]},
-  {"question": "À quel moment ma dernière game a basculé ?", "expected_tools": ["analyze_last_game_by_phase"]},
-  {"question": "Analyse ma laning phase", "expected_tools": ["analyze_last_game_by_phase"]},
-  {"question": "Résume rapidement ma dernière game", "expected_tools": ["analyze_last_game"]},
-  {"question": "Pourquoi je perds en ce moment ?", "expected_tools": ["compute_stats"]},
-  {"question": "Suis-je meilleur sur certains champions ?", "expected_tools": ["compute_stats"]},
-  {"question": "Quel est mon winrate sur mes 10 dernières games ?", "expected_tools": ["compute_stats"]},
-  {"question": "Prouve-moi que j'ai perdu mes trades, avec les sorts utilisés", "expected_tools": ["analyze_last_game_by_phase"]},
-  {"question": "Mon support m'a-t-il aidé sur mes morts ?", "expected_tools": ["analyze_last_game_by_phase"]}
+  {"question": "Analyze my last game", "expected_tools": ["analyze_last_game", "analyze_last_game_by_phase"]},
+  {"question": "Why did I lose my last game?", "expected_tools": ["analyze_last_game_by_phase", "analyze_last_game"]},
+  {"question": "At what point did my last game turn?", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Analyze my laning phase", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Quickly summarize my last game", "expected_tools": ["analyze_last_game"]},
+  {"question": "Why am I losing lately?", "expected_tools": ["compute_stats"]},
+  {"question": "Am I better on certain champions?", "expected_tools": ["compute_stats"]},
+  {"question": "What is my winrate over my last 10 games?", "expected_tools": ["compute_stats"]},
+  {"question": "Prove I lost my trades, with the spells used", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Did my support help me on my deaths?", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "Was I ahead of my lane opponent in CS at 10 minutes?", "expected_tools": ["analyze_last_game_by_phase"]},
+  {"question": "How did my laning phase go compared to my opponent?", "expected_tools": ["analyze_last_game_by_phase"]}
 ]

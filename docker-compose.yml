@@ -1,0 +1,13 @@
+services:
+  coach:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      # demo (default): anonymized sample match, no Riot key needed. live: your real games.
+      RIOT_MODE: ${RIOT_MODE:-demo}
+      RIOT_API_KEY: ${RIOT_API_KEY:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_URL: ${LLM_URL:-https://generativelanguage.googleapis.com/v1beta/openai/chat/completions}
+      LLM_MODEL: ${LLM_MODEL:-gemini-2.5-flash}
+    restart: unless-stopped

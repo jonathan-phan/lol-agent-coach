@@ -1,12 +1,11 @@
 """
-Agrège les données brutes de get_match_history() en statistiques exploitables
-par l'agent : winrate par champion, KDA moyen, comparaison vs adversaires
-directs, détection de "games ratées".
+Aggregates the raw data of get_match_history() into statistics usable by the
+agent: per-champion winrate, average KDA, comparison against direct
+opponents, detection of "bad games".
 
-Ce module ne fait aucun appel réseau — il transforme juste des données déjà
-récupérées. C'est volontaire : on sépare "aller chercher la donnée" (riot_client.py)
-de "analyser la donnée" (stats.py), pour que l'agent puisse appeler ces deux
-outils indépendamment selon la question posée.
+This module makes no network call — it only transforms data already fetched.
+That is deliberate: "fetching the data" (riot_client.py) is separated from
+"analyzing the data" (stats.py).
 """
 from collections import defaultdict
 
@@ -15,19 +14,80 @@ def _safe_div(a: float, b: float) -> float:
     return round(a / b, 2) if b else 0.0
 
 
+def _kda(player: dict) -> float:
+    return (player["kills"] + player["assists"]) / (player["deaths"] or 1)
+
+
+def _by_champion(match_history: list[dict]) -> dict:
+    games_by_champ = defaultdict(list)
+    for m in match_history:
+        games_by_champ[m["me"]["champion"]].append(m["me"])
+    return {
+        champ: {
+            "games": len(games),
+            "winrate": _safe_div(sum(g["win"] for g in games), len(games)),
+            "avg_kda": _safe_div(
+                sum(g["kills"] + g["assists"] for g in games),
+                sum(g["deaths"] for g in games) or 1,
+            ),
+        }
+        for champ, games in games_by_champ.items()
+    }
+
+
+def _vs_opponent(match_history: list[dict]) -> dict:
+    duels = [m for m in match_history if m.get("opponent")]
+    if not duels:
+        return {"games_with_opponent_data": 0}
+    n = len(duels)
+    return {
+        "games_with_opponent_data": n,
+        "gold_diff_avg": round(sum(m["me"]["gold_earned"] - m["opponent"]["gold_earned"] for m in duels) / n, 0),
+        "cs_diff_avg": round(sum(m["me"]["cs"] - m["opponent"]["cs"] for m in duels) / n, 1),
+        "kda_diff_avg": round(sum(_kda(m["me"]) - _kda(m["opponent"]) for m in duels) / n, 2),
+    }
+
+
+def _likely_reasons(m: dict) -> list[str]:
+    me, opp = m["me"], m.get("opponent")
+    reasons = []
+    if me["deaths"] >= 7:
+        reasons.append("many deaths")
+    if opp and me["cs"] < opp["cs"] - 20:
+        reasons.append("CS behind the direct opponent")
+    if opp and me["gold_earned"] < opp["gold_earned"] - 1500:
+        reasons.append("gold behind the direct opponent")
+    return reasons or ["needs manual review"]
+
+
+def _worst_games(match_history: list[dict]) -> list[dict]:
+    # (win, kda): False < True, so defeats come first
+    worst = sorted(match_history, key=lambda m: (m["me"]["win"], _kda(m["me"])))[:3]
+    return [
+        {
+            "match_id": m["match_id"],
+            "champion": m["me"]["champion"],
+            "win": m["me"]["win"],
+            "kda": f"{m['me']['kills']}/{m['me']['deaths']}/{m['me']['assists']}",
+            "likely_reasons": _likely_reasons(m),
+        }
+        for m in worst
+    ]
+
+
 def compute_stats(match_history: list[dict]) -> dict:
     """
-    Prend la sortie de get_match_history() et retourne un résumé agrégé :
+    Takes the output of get_match_history() and returns an aggregated summary:
 
     {
         "overall": { winrate, games_played, avg_kda, avg_cs_per_min, ... },
-        "by_champion": { "Ezreal": { winrate, games, avg_kda, ... }, ... },
+        "by_champion": { "Ezreal": { winrate, games, avg_kda }, ... },
         "vs_opponent_avg": { "gold_diff_avg", "cs_diff_avg", "kda_diff_avg" },
-        "worst_games": [ ... les 3 pires games (par KDA) avec le pourquoi ... ]
+        "worst_games": [ ... the 3 worst games (by KDA, defeats first) with likely reasons ... ]
     }
     """
     if not match_history:
-        return {"error": "Aucune game dans l'historique fourni."}
+        return {"error": "No game in the provided history."}
 
     n = len(match_history)
     wins = sum(1 for m in match_history if m["me"]["win"])
@@ -48,93 +108,9 @@ def compute_stats(match_history: list[dict]) -> dict:
         "avg_cs_per_min": _safe_div(total_cs, total_minutes),
     }
 
-    # --- Stats par champion ---
-    by_champion_raw = defaultdict(list)
-    for m in match_history:
-        by_champion_raw[m["me"]["champion"]].append(m)
-
-    by_champion = {}
-    for champ, games in by_champion_raw.items():
-        g_wins = sum(1 for g in games if g["me"]["win"])
-        g_kills = sum(g["me"]["kills"] for g in games)
-        g_deaths = sum(g["me"]["deaths"] for g in games)
-        g_assists = sum(g["me"]["assists"] for g in games)
-        by_champion[champ] = {
-            "games": len(games),
-            "winrate": _safe_div(g_wins, len(games)),
-            "avg_kda": _safe_div(g_kills + g_assists, g_deaths or 1),
-        }
-
-    # --- Comparaison vs adversaire direct (uniquement games où on a l'opponent) ---
-    duels = [m for m in match_history if m.get("opponent")]
-    if duels:
-        gold_diffs = [m["me"]["gold_earned"] - m["opponent"]["gold_earned"] for m in duels]
-        cs_diffs = [m["me"]["cs"] - m["opponent"]["cs"] for m in duels]
-        my_kda = [
-            (m["me"]["kills"] + m["me"]["assists"]) / (m["me"]["deaths"] or 1)
-            for m in duels
-        ]
-        opp_kda = [
-            (m["opponent"]["kills"] + m["opponent"]["assists"]) / (m["opponent"]["deaths"] or 1)
-            for m in duels
-        ]
-        vs_opponent_avg = {
-            "games_with_opponent_data": len(duels),
-            "gold_diff_avg": round(sum(gold_diffs) / len(duels), 0),
-            "cs_diff_avg": round(sum(cs_diffs) / len(duels), 1),
-            "kda_diff_avg": round(
-                sum(my_kda) / len(duels) - sum(opp_kda) / len(duels), 2
-            ),
-        }
-    else:
-        vs_opponent_avg = {"games_with_opponent_data": 0}
-
-    # --- Pires games (les 3 plus mauvais KDA, priorité aux défaites) ---
-    def game_score(m):
-        kda = (m["me"]["kills"] + m["me"]["assists"]) / (m["me"]["deaths"] or 1)
-        return (m["me"]["win"], kda)  # False < True donc les défaites sortent en premier
-
-    worst = sorted(match_history, key=game_score)[:3]
-    worst_games = []
-    for m in worst:
-        me = m["me"]
-        reasons = []
-        if me["deaths"] >= 7:
-            reasons.append("beaucoup de morts")
-        if m.get("opponent") and me["cs"] < m["opponent"]["cs"] - 20:
-            reasons.append("CS en retard sur l'adversaire direct")
-        if m.get("opponent") and me["gold_earned"] < m["opponent"]["gold_earned"] - 1500:
-            reasons.append("gold en retard sur l'adversaire direct")
-        worst_games.append({
-            "match_id": m["match_id"],
-            "champion": me["champion"],
-            "win": me["win"],
-            "kda": f"{me['kills']}/{me['deaths']}/{me['assists']}",
-            "likely_reasons": reasons or ["à examiner manuellement"],
-        })
-
     return {
         "overall": overall,
-        "by_champion": by_champion,
-        "vs_opponent_avg": vs_opponent_avg,
-        "worst_games": worst_games,
+        "by_champion": _by_champion(match_history),
+        "vs_opponent_avg": _vs_opponent(match_history),
+        "worst_games": _worst_games(match_history),
     }
-
-
-if __name__ == "__main__":
-    # Test rapide : enchaîne get_match_history() -> compute_stats()
-    # python src/tools/stats.py "TonPseudo" "TAG"
-    import sys
-    import json
-    import os
-
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-    from riot_client import get_match_history
-
-    if len(sys.argv) != 3:
-        print("Usage: python stats.py <game_name> <tag_line>")
-        sys.exit(1)
-
-    history = get_match_history(sys.argv[1], sys.argv[2], count=10)
-    stats = compute_stats(history)
-    print(json.dumps(stats, indent=2, ensure_ascii=False))

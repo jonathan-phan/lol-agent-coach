@@ -1,13 +1,18 @@
 """
-Client léger pour l'API Riot Games.
+Riot match data for the tools, from one of two sources chosen by RIOT_MODE:
 
-Deux bases d'URL différentes chez Riot, c'est le premier piège à connaître :
-- "platform" routing (ex: euw1.api.riotgames.com) -> données liées à une région
-  précise (summoner, league, etc.)
-- "regional" routing (ex: europe.api.riotgames.com) -> données transverses
-  (match history, account par riot ID), regroupe plusieurs plateformes
+- demo (default): an anonymized sample match replayed from disk; needs no
+  Riot key and never touches the network.
+- live: the Riot Games API (needs RIOT_API_KEY, a dev key expires every 24h).
 
-Doc officielle : https://developer.riotgames.com/apis
+Interface for the tools: get_match_history(), get_last_match(), mode() and
+DEMO_PLAYER. The rest (sources, HTTP, retry, disk cache, PUUID) is implementation.
+
+Riot uses two kinds of base URLs: "platform" routing (e.g. euw1.api.riotgames.com,
+region-bound data) and "regional" routing (e.g. europe.api.riotgames.com,
+cross-region data such as match history). Only regional routing is used here.
+
+Official docs: https://developer.riotgames.com/apis
 """
 import os
 import json
@@ -20,24 +25,36 @@ from dotenv import load_dotenv
 load_dotenv()
 
 RIOT_API_KEY = os.getenv("RIOT_API_KEY")
-PLATFORM = os.getenv("RIOT_REGION", "euw1")       # euw1, na1, kr, ...
 REGIONAL = os.getenv("RIOT_REGIONAL", "europe")    # europe, americas, asia
 
-HEADERS = {"X-Riot-Token": RIOT_API_KEY}
-
 CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "cache")
+DEMO_DIR = os.path.join(os.path.dirname(__file__), "demo_data")
+DEMO_PLAYER = ("DemoPlayer", "DEMO")
+MIN_GAME_SECONDS = 300  # below this: remake, stats unusable
 
 
 class RiotAPIError(Exception):
     pass
 
 
-def _get(url: str, params: dict | None = None, _retries: int = 3) -> dict:
-    """Wrapper GET avec timeout, retry borné sur 429 et messages d'erreur clairs."""
-    if not RIOT_API_KEY:
-        raise RiotAPIError("RIOT_API_KEY introuvable : vérifie ton fichier .env")
+def mode() -> str:
+    """"demo" (default) or "live", read from RIOT_MODE at each call."""
+    value = os.getenv("RIOT_MODE", "demo").strip().lower()
+    if value not in ("demo", "live"):
+        raise RiotAPIError(f"RIOT_MODE must be 'demo' or 'live', got '{value}'")
+    return value
 
-    resp = requests.get(url, headers=HEADERS, params=params or {}, timeout=15)
+
+def _url(path: str) -> str:
+    return f"https://{REGIONAL}.api.riotgames.com/{path}"
+
+
+def _get(url: str, params: dict | None = None, _retries: int = 3) -> dict:
+    """GET wrapper with timeout, bounded retry on 429 and clear error messages."""
+    if not RIOT_API_KEY:
+        raise RiotAPIError("RIOT_API_KEY not found: check your .env file, or use RIOT_MODE=demo")
+
+    resp = requests.get(url, headers={"X-Riot-Token": RIOT_API_KEY}, params=params or {}, timeout=15)
 
     if resp.status_code == 429 and _retries > 0:
         time.sleep(int(resp.headers.get("Retry-After", 1)))
@@ -45,13 +62,13 @@ def _get(url: str, params: dict | None = None, _retries: int = 3) -> dict:
 
     if resp.status_code in (401, 403):
         raise RiotAPIError(
-            f"{resp.status_code} — clé Riot invalide ou expirée (24h en dev). "
-            "Régénère-la sur https://developer.riotgames.com"
+            f"{resp.status_code} — invalid or expired Riot key (24h for dev keys). "
+            "Regenerate it at https://developer.riotgames.com"
         )
     if resp.status_code == 404:
-        raise RiotAPIError("404 — introuvable (pseudo/tag incorrect, ou game pas encore disponible).")
+        raise RiotAPIError("404 — not found (wrong name/tag, or game not available yet).")
     if resp.status_code == 429:
-        raise RiotAPIError("429 — quota Riot dépassé, réessaie dans 2 minutes.")
+        raise RiotAPIError("429 — Riot quota exceeded, retry in 2 minutes.")
     if not resp.ok:
         raise RiotAPIError(f"Riot API error {resp.status_code}: {resp.text}")
 
@@ -59,7 +76,7 @@ def _get(url: str, params: dict | None = None, _retries: int = 3) -> dict:
 
 
 def _get_cached(key: str, url: str) -> dict:
-    """Un match terminé ne change jamais : on le stocke sur disque."""
+    """A finished match never changes: store it on disk."""
     path = os.path.join(CACHE_DIR, f"{key}.json")
     if os.path.exists(path):
         with open(path, encoding="utf-8") as f:
@@ -73,35 +90,55 @@ def _get_cached(key: str, url: str) -> dict:
 
 @lru_cache(maxsize=32)
 def get_puuid(game_name: str, tag_line: str) -> str:
-    """Récupère le PUUID (identifiant stable) à partir du Riot ID (pseudo#tag)."""
-    url = f"https://{REGIONAL}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{quote(game_name)}/{quote(tag_line)}"
-    data = _get(url)
-    return data["puuid"]
-
-def get_match_timeline(match_id: str) -> dict:
-    """Détail minute par minute d'une game."""
-    url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/{match_id}/timeline"
-    return _get_cached(f"{match_id}_timeline", url)
+    """Fetch the PUUID (stable identifier) from the Riot ID (name#tag)."""
+    url = _url(f"riot/account/v1/accounts/by-riot-id/{quote(game_name)}/{quote(tag_line)}")
+    return _get(url)["puuid"]
 
 
-def get_match_ids(puuid: str, count: int = 20, queue: int | None = 420) -> list[str]:
-    """Liste les IDs des derniers matchs joués (Solo/Duo par défaut ; 440 = Flex)."""
-    url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids"
-    params = {"count": count}
-    if queue:
-        params["queue"] = queue
-    return _get(url, params)
+class _LiveSource:
+    def puuid(self, game_name: str, tag_line: str) -> str:
+        return get_puuid(game_name, tag_line)
+
+    def match_ids(self, puuid: str, count: int, queue: int = 420) -> list[str]:
+        """IDs of the latest matches (Solo/Duo by default; 440 = Flex)."""
+        return _get(_url(f"lol/match/v5/matches/by-puuid/{puuid}/ids"), {"count": count, "queue": queue})
+
+    def match_detail(self, match_id: str) -> dict:
+        return _get_cached(match_id, _url(f"lol/match/v5/matches/{match_id}"))
+
+    def match_timeline(self, match_id: str) -> dict:
+        return _get_cached(f"{match_id}_timeline", _url(f"lol/match/v5/matches/{match_id}/timeline"))
 
 
-def get_match_detail(match_id: str) -> dict:
-    """Détail complet d'un match (tous les joueurs, toutes les stats)."""
-    url = f"https://{REGIONAL}.api.riotgames.com/lol/match/v5/matches/{match_id}"
-    return _get_cached(match_id, url)
+@lru_cache(maxsize=2)
+def _load_demo(name: str) -> dict:
+    with open(os.path.join(DEMO_DIR, f"{name}.json"), encoding="utf-8") as f:
+        return json.load(f)
 
 
-def _simplify_participant(p: dict) -> dict:
-    """Extrait les stats utiles d'un participant brut de l'API (utilisé pour
-    toi ET pour les 9 autres joueurs de la game)."""
+class _DemoSource:
+    """One anonymized sample match; the requested name/tag is ignored."""
+
+    def puuid(self, game_name: str, tag_line: str) -> str:
+        return _load_demo("match")["metadata"]["participants"][0]
+
+    def match_ids(self, puuid: str, count: int) -> list[str]:
+        return [_load_demo("match")["metadata"]["matchId"]][:max(count, 0)]
+
+    def match_detail(self, match_id: str) -> dict:
+        return _load_demo("match")
+
+    def match_timeline(self, match_id: str) -> dict:
+        return _load_demo("timeline")
+
+
+def _source():
+    return _LiveSource() if mode() == "live" else _DemoSource()
+
+
+def simplify_participant(p: dict) -> dict:
+    """Extract the useful stats from a raw API participant (used for the
+    player AND the 9 other players of the game)."""
     return {
         "summoner_name": p.get("riotIdGameName", p.get("summonerName", "?")),
         "champion": p["championName"],
@@ -119,63 +156,67 @@ def _simplify_participant(p: dict) -> dict:
     }
 
 
+def _find_me(participants: list[dict], puuid: str) -> dict:
+    return next(p for p in participants if p["puuid"] == puuid)
+
+
+def get_last_match(game_name: str, tag_line: str) -> dict | None:
+    """
+    Latest game with its timeline, for detailed analyses. Returns None if
+    there is no game, else {match_id, me (raw participant), participants, timeline}.
+    """
+    source = _source()
+    puuid = source.puuid(game_name, tag_line)
+    match_ids = source.match_ids(puuid, count=1)
+    if not match_ids:
+        return None
+    participants = source.match_detail(match_ids[0])["info"]["participants"]
+    return {
+        "match_id": match_ids[0],
+        "me": _find_me(participants, puuid),
+        "participants": participants,
+        "timeline": source.match_timeline(match_ids[0]),
+    }
+
+
 def get_match_history(game_name: str, tag_line: str, count: int = 10) -> list[dict]:
     """
-    Fonction "outil" de haut niveau que l'agent appellera.
+    High-level "tool" function the agent will call.
 
-    Retourne, pour chaque game :
-    - "me" : tes stats
-    - "opponent" : les stats du joueur adverse à ton poste (même rôle, équipe
-      d'en face) — c'est lui qui te permet de comparer "toi vs ton lane"
-    - "all_players" : les 10 joueurs de la game (les deux équipes), pour une
-      analyse plus large si besoin (compo, qui a explosé la game, etc.)
+    Returns, for each game:
+    - "me": the player's stats
+    - "opponent": stats of the opposing player in the same role (opposing
+      team) — lets you compare "you vs your lane opponent"
+    - "all_players": the 10 players of the game (both teams), for a broader
+      analysis if needed (comps, who snowballed the game, etc.)
     """
-    puuid = get_puuid(game_name, tag_line)
-    match_ids = get_match_ids(puuid, count=count)
+    source = _source()
+    puuid = source.puuid(game_name, tag_line)
 
     results = []
-    for mid in match_ids:
-        detail = get_match_detail(mid)
+    for mid in source.match_ids(puuid, count=count):
+        detail = source.match_detail(mid)
         participants = detail["info"]["participants"]
 
-        # remakes : stats inexploitables
-        if detail["info"]["gameDuration"] < 300:
+        if detail["info"]["gameDuration"] < MIN_GAME_SECONDS:
             continue
 
-        me_raw = next(p for p in participants if p["puuid"] == puuid)
-        me = _simplify_participant(me_raw)
+        me_raw = _find_me(participants, puuid)
 
-        # adversaire direct = même rôle, équipe adverse
+        # direct opponent = same role, opposing team
         opponent_raw = next(
             (p for p in participants
              if p["teamId"] != me_raw["teamId"]
              and p.get("teamPosition") == me_raw.get("teamPosition")),
             None,
         )
-        opponent = _simplify_participant(opponent_raw) if opponent_raw else None
-
-        all_players = [_simplify_participant(p) for p in participants]
 
         results.append({
             "match_id": mid,
             "game_duration_min": round(detail["info"]["gameDuration"] / 60, 1),
-            "me": me,
-            "opponent": opponent,
-            "all_players": all_players,
+            "me": simplify_participant(me_raw),
+            "opponent": simplify_participant(opponent_raw) if opponent_raw else None,
+            "all_players": [simplify_participant(p) for p in participants],
         })
 
     return results
-
-
-if __name__ == "__main__":
-    # Test rapide en ligne de commande :
-    # python src/riot_client.py "TonPseudo" "TAG"
-    import sys
-    import json
-
-    if len(sys.argv) != 3:
-        print("Usage: python riot_client.py <game_name> <tag_line>")
-        sys.exit(1)
-
-    history = get_match_history(sys.argv[1], sys.argv[2], count=5)
-    print(json.dumps(history, indent=2, ensure_ascii=False))
