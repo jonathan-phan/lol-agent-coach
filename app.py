@@ -21,7 +21,7 @@ st.set_page_config(page_title="LoL Agent Coach", page_icon="🎮")
 st.title("LoL Agent Coach")
 
 try:
-    data_mode = riot_client.mode()
+    initial_mode = riot_client.mode()
 except riot_client.RiotAPIError as e:
     st.error(str(e))
     st.stop()
@@ -31,13 +31,23 @@ if "conversation" not in st.session_state:
     st.session_state.display = []  # (role, text, tools)
     st.session_state.questions_asked = 0
 
+ENV_RIOT_KEY = os.getenv("RIOT_API_KEY")
+
 with st.sidebar:
+    data_mode = st.radio("Data source", ["demo", "live"], index=int(initial_mode == "live"), horizontal=True)
+    os.environ["RIOT_MODE"] = data_mode
     if data_mode == "demo":
         name, tag = riot_client.DEMO_PLAYER
         st.info(f"**Demo mode**: analyzing an anonymized sample match as {name}#{tag}. No Riot key needed.")
         game_name, tag_line = name, tag
     else:
         st.success("**Live mode**: your real games, through the Riot API.")
+        riot_key = st.text_input(
+            "Riot API key" + (" (optional)" if ENV_RIOT_KEY else ""),
+            type="password",
+            help="Dev key from https://developer.riotgames.com (expires after 24h). Kept only in memory.",
+        )
+        riot_client.RIOT_API_KEY = riot_key or ENV_RIOT_KEY
         game_name = st.text_input("Riot name")
         tag_line = st.text_input("Tag (without #)")
 
