@@ -11,7 +11,7 @@ understand every building block).
 ## Try it in 3 minutes
 
 No Riot key needed: **demo mode** (the default) analyzes an anonymized sample
-match. You only need an LLM key (free, e.g. https://aistudio.google.com/apikey),
+match. You only need an LLM key (e.g. a Cohere key from https://dashboard.cohere.com/api-keys),
 which you paste in the app's sidebar.
 
 **With Docker**
@@ -110,8 +110,8 @@ and excluded from the Docker image):
 RIOT_MODE=demo            # demo | live
 RIOT_API_KEY=             # live mode only: https://developer.riotgames.com (expires every 24h)
 LLM_API_KEY=              # optional in the web app: visitors can paste their own key
-# LLM_URL=https://generativelanguage.googleapis.com/v1beta/openai/chat/completions
-# LLM_MODEL=gemini-3.8-flash
+# LLM_URL=https://api.cohere.ai/compatibility/v1/chat/completions
+# LLM_MODEL=command-a-plus-05-2026
 # RIOT_REGIONAL=europe    # europe | americas | asia
 ```
 
