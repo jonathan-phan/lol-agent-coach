@@ -22,6 +22,10 @@ docker compose up --build
 
 Open http://localhost:8501, paste your LLM key in the sidebar, click a sample question.
 
+**One-click launch** (creates the venv, installs, starts the app): double-click
+`run.bat` on Windows, or `./run.sh` on macOS / Linux. Then pick `live` in the
+sidebar and paste your Riot and LLM keys: no `.env` needed.
+
 **Without Docker**
 
 ```bash
