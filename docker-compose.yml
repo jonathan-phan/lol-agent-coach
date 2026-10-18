@@ -8,6 +8,6 @@ services:
       RIOT_MODE: ${RIOT_MODE:-demo}
       RIOT_API_KEY: ${RIOT_API_KEY:-}
       LLM_API_KEY: ${LLM_API_KEY:-}
-      LLM_URL: ${LLM_URL:-https://generativelanguage.googleapis.com/v1beta/openai/chat/completions}
-      LLM_MODEL: ${LLM_MODEL:-gemini-3.8-flash}
+      LLM_URL: ${LLM_URL:-https://api.cohere.ai/compatibility/v1/chat/completions}
+      LLM_MODEL: ${LLM_MODEL:-command-a-plus-05-2026}
     restart: unless-stopped
